@@ -1,0 +1,61 @@
+typedef enum {
+    CDMA = 0,
+    GSM_UMTS = 1,
+    UNKNOWN = 2,
+    GPRS = 3,
+    RADIO_TECH_EDGE = 4,
+    RADIO_TECH_UMTS = 5,
+    RADIO_TECH_IS95A = 6,
+    RADIO_TECH_IS95B = 7,
+    RADIO_TECH_1xRTT =  8,
+    RADIO_TECH_EVDO_0 = 9,
+    RADIO_TECH_EVDO_A = 10,
+    RADIO_TECH_HSDPA = 11,
+    RADIO_TECH_HSUPA = 12,
+    RADIO_TECH_HSPA = 13,
+    RADIO_TECH_EVDO_B = 14,
+    RADIO_TECH_EHRPD = 15,
+    RADIO_TECH_LTE = 16,
+    RADIO_TECH_HSPAP = 17, // HSPA+
+    RADIO_TECH_GSM = 18, // Only supports voice
+    RADIO_TECH_TD_SCDMA = 19,
+    RADIO_TECH_IWLAN = 20,
+    RADIO_TECH_LTE_CA = 21
+} RIL_RadioTechnology;
+
+typedef enum {
+    PREF_NET_TYPE_GSM_WCDMA                = 0, /* GSM/WCDMA (WCDMA preferred) */
+    PREF_NET_TYPE_GSM_ONLY                 = 1, /* GSM only */
+    PREF_NET_TYPE_WCDMA                    = 2, /* WCDMA  */
+    PREF_NET_TYPE_GSM_WCDMA_AUTO           = 3, /* GSM/WCDMA (auto mode, according to PRL) */
+    PREF_NET_TYPE_CDMA_EVDO_AUTO           = 4, /* CDMA and EvDo (auto mode, according to PRL) */
+    PREF_NET_TYPE_CDMA_ONLY                = 5, /* CDMA only */
+    PREF_NET_TYPE_EVDO_ONLY                = 6, /* EvDo only */
+    PREF_NET_TYPE_GSM_WCDMA_CDMA_EVDO_AUTO = 7, /* GSM/WCDMA, CDMA, and EvDo (auto mode, according to PRL) */
+    PREF_NET_TYPE_LTE_CDMA_EVDO            = 8, /* LTE, CDMA and EvDo */
+    PREF_NET_TYPE_LTE_GSM_WCDMA            = 9, /* LTE, GSM/WCDMA */
+    PREF_NET_TYPE_LTE_CMDA_EVDO_GSM_WCDMA  = 10, /* LTE, CDMA, EvDo, GSM/WCDMA */
+    PREF_NET_TYPE_LTE_ONLY                 = 11, /* LTE only */
+    PREF_NET_TYPE_LTE_WCDMA                = 12,  /* LTE/WCDMA */
+    PREF_NET_TYPE_TD_SCDMA_ONLY            = 13, /* TD-SCDMA only */
+    PREF_NET_TYPE_TD_SCDMA_WCDMA           = 14, /* TD-SCDMA and WCDMA */
+    PREF_NET_TYPE_TD_SCDMA_LTE             = 15, /* TD-SCDMA and LTE */
+    PREF_NET_TYPE_TD_SCDMA_GSM             = 16, /* TD-SCDMA and GSM */
+    PREF_NET_TYPE_TD_SCDMA_GSM_LTE         = 17, /* TD-SCDMA,GSM and LTE */
+    PREF_NET_TYPE_TD_SCDMA_GSM_WCDMA       = 18, /* TD-SCDMA, GSM/WCDMA */
+    PREF_NET_TYPE_TD_SCDMA_WCDMA_LTE       = 19, /* TD-SCDMA, WCDMA and LTE */
+    PREF_NET_TYPE_TD_SCDMA_GSM_WCDMA_LTE   = 20, /* TD-SCDMA, GSM/WCDMA and LTE */
+    PREF_NET_TYPE_TD_SCDMA_GSM_WCDMA_CDMA_EVDO_AUTO  = 21, /* TD-SCDMA, GSM/WCDMA, CDMA and EvDo */
+    PREF_NET_TYPE_TD_SCDMA_LTE_CDMA_EVDO_GSM_WCDMA   = 22  /* TD-SCDMA, LTE, CDMA, EvDo GSM/WCDMA */
+} RIL_PreferredNetworkType;
+
+typedef enum {
+    Not register and not searching = 0,
+    Registered to home network = 1,
+    not registered and searching = 2,
+    registration denied = 3,
+    Unknown = 4,
+    Registered, roaming = 5,
+    Not registered but searching, emergency call enabled =  12,
+    Registration denied = 13,    
+} REGSTATE;

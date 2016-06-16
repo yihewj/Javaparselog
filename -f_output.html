@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+    $("input[type='checkbox'][name='cat']").prop("checked", true);
+    $("p[tag='Orignal']").hide();
+    var showtitle = 'Show Original Log';
+    var hidetitle = 'Hide Orignal Log';
+    $("#btnhideshow").click(function(){        
+        if ($("#btnhideshow").text() == showtitle) {
+            $.each($("input[type='checkbox']:checked"), function() {
+                var value= $(this).prop('value'); 
+                $("p[cat='"+value+"'][tag='Orignal']").show();  
+            });
+            $("#btnhideshow").html(hidetitle);
+        } else {
+            $("p[tag='Orignal']").hide();
+            $("#btnhideshow").html(showtitle);
+        }                
+    });
+    $("input[type='checkbox'][name='cat']").change(function(){
+        var value= $(this).prop('value');        
+        if (this.checked) { 
+            if ($("#btnhideshow").text() == showtitle) { 
+                $("p[cat='"+value+"'][tag='Converted']").show();    
+            } else {
+                $("p[cat='"+value+"']").show();    
+            }
+        } else {
+            $("p[cat='"+value+"']").hide();
+        }
+    });
+    
+});
+</script>
+</head>
+<body>
+<button id='btnhideshow'>Show Original Log</button>
+<hr>

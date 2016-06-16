@@ -1,0 +1,1 @@
+ModemStatsDSDetect: INET_CONDITION=%%keepOrignal%% ,activeNet=[type: %%keepOrignal%%, state: %%keepOrignal%%, reason: %%keepOrignal%%, extra: %%keepOrignal%%, roaming: %%keepOrignal%%, failover: %%keepOrignal%%, isAvailable: %%keepOrignal%%]@->Data Connection status: Internet $1 {color:Green} {keepdup} {cat:Network}

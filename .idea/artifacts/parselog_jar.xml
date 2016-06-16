@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="parselog:jar">
+    <output-path>C:/12.Jar</output-path>
+    <root id="archive" name="parselog.jar">
+      <element id="module-output" name="parselog" />
+    </root>
+  </artifact>
+</component>
