@@ -5,18 +5,14 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by a20023 on 1/21/2016.
- */
+
 public class PlainWordTranslation {
 
     static private PlainWordTranslation instance;
     private static HashMap<String, EnumValueMap> enumVarMap = new HashMap<>();
     private static EnumValueMap enumValueMap;
 
-    private PlainWordTranslation() {
-        return;
-    }
+
 
     public class EnumValueMap {
         private HashMap<String, String> map;
@@ -59,7 +55,7 @@ public class PlainWordTranslation {
             System.out.println("Cannot find file " + fileName);
         }
         String newSection = "typedef enum {";
-        String enumValueNamePattern = "\\s++(.*?)\\s++=\\s++(\\d{1,4}+).*?";
+        String enumValueNamePattern = "\\s++(.*?)\\s++=\\s++(\\d{1,8}+).*?";
         String enumVariableNamePattern = "\\s*?}\\s*?(\\S*?);\\s*?";
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -90,13 +86,13 @@ public class PlainWordTranslation {
         if (varName.equalsIgnoreCase("keepOrignal")) {
             return value;
         }
-        EnumValueMap enumNameValueMap = enumVarMap.get(varName);
+
 
         String pattern = "^LargeThan(\\d++)";
         Matcher match = Pattern.compile(pattern).matcher(varName);
         if (match.find()) {
             String limit = match.group(1);
-            if (Integer.parseInt(value) > Integer.parseInt(limit)) {
+            if (Float.parseFloat(value) > Float.parseFloat(limit)) {
                 return value;
             } else {
                 return null;
@@ -106,13 +102,14 @@ public class PlainWordTranslation {
         match = Pattern.compile(pattern).matcher(varName);
         if (match.find()) {
             String limit = match.group(1);
-            if (Integer.parseInt(value) < Integer.parseInt(limit)) {
+            if (Float.parseFloat(value) < Float.parseFloat(limit)) {
                 return value;
             } else {
                 return null;
             }
         }
 
+        EnumValueMap enumNameValueMap = enumVarMap.get(varName);
         if (enumNameValueMap != null) {
             return enumNameValueMap.get(value);
         }

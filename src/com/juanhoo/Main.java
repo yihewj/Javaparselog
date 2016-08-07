@@ -1,9 +1,10 @@
 package com.juanhoo;
 
 import java.io.*;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Vector;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 public class Main {
 
@@ -20,6 +21,7 @@ public class Main {
         int INPUTFLAG = 2;
         int flag = NOFLAG;
         String inputFileName = null;
+        Date startTime = new Date();
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].compareToIgnoreCase("-f") == 0) {
@@ -42,6 +44,11 @@ public class Main {
             }
         }
 
+        if (inputFileName == null) {
+            doUsage();
+            return;
+        }
+
 
 
         Map<String, String> env = System.getenv();
@@ -53,14 +60,28 @@ public class Main {
             }
         }
 
+        File file = new File(inputFileName);
+
+
+        Vector<LogFile> logFiles;
+        if (file.isDirectory()) {
+            logFiles = LogFile.getLogFileList(inputFileName);
+        } else {
+            logFiles = new Vector<>();
+            LogFile singleLogFile = new LogFile();
+            singleLogFile.fileName = inputFileName;
+            singleLogFile.fileType = "a";
+            logFiles.add(singleLogFile);
+        }
+
         //Create filter pattern group
         SmartPatternGroup smartPatternGroup = new SmartPatternGroup();
         System.out.println("Create filter list");
         for (FilterFileNameID filter:filterFileList) {
+
             try (BufferedReader br = new BufferedReader(new FileReader((DATAPATH == null)?filter.name:DATAPATH+"\\"+filter.name))) {
                 String line;
                 while ((line = br.readLine()) != null) {
-                    System.out.print(".");
                     smartPatternGroup.AddPattern(filter.fileID, line);
                 }
                 System.out.print("\n");
@@ -72,29 +93,35 @@ public class Main {
                 return;
             }
         }
-        if (inputFileName == null) {
-            doUsage();
-            return;
-        }
+    //    smartPatternGroup.AddPattern(0, "{PID=15674} {color:Gray} {keepdup} {cat:PID-2710}");
 
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFileName))) {
-            String line;
-            System.out.println("Parsing file");
-            int progInd = 0;
 
-            while ((line = br.readLine()) != null) {
-                smartPatternGroup.ParseLine(line);
-                if (progInd++ == 100) {
-                    System.out.print(".");
-                    progInd = 0;
+        for (LogFile logFile:logFiles) {
+            smartPatternGroup.setLogFileType(logFile.fileType);
+            System.out.println("\nStart processing file "+logFile.fileName +"\n");
+            try (BufferedReader br = new BufferedReader(new FileReader(logFile.fileName))) {
+                String line;
+
+                int progInd = 0;
+
+                while ((line = br.readLine()) != null) {
+                    smartPatternGroup.ParseLine(line);
+                    if (progInd++ == 100) {
+                        System.out.print(".");
+                        progInd = 0;
+                    }
                 }
-            }
 
-        } catch (FileNotFoundException e) {
-            System.out.println("Please check the filter file " + inputFileName + " exist or not!");
-        } catch (IOException e) {
-            System.out.println("Issue happened when reading file " + inputFileName);
+            } catch (FileNotFoundException e) {
+                System.out.println("Please check the filter file " + inputFileName + " exist or not!");
+            } catch (IOException e) {
+                System.out.println("Issue happened when reading file " + inputFileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
+
 
         for (FilterFileNameID filter:filterFileList) {
             String result = smartPatternGroup.GetParseOutputByFileID(filter.fileID);
@@ -109,7 +136,12 @@ public class Main {
 
         }
 
+        Date endtime = new Date();
+        System.out.println("\nTotal process time: "+ (endtime.getTime() - startTime.getTime())/1000 + "seconds");
+
     }
+
+
 
     private static Vector<FilterFileNameID>  filterFileList = new Vector<>();
 

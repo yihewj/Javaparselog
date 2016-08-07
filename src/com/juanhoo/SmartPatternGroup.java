@@ -4,8 +4,10 @@ package com.juanhoo;
  * Created by Yi He on 5/23/2016.
  */
 
+import java.io.FilePermission;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.Vector;
 
 /**
@@ -14,7 +16,14 @@ import java.util.Vector;
 public class SmartPatternGroup {
 
     HashMap<Integer, Vector<SmartPattern.ParseResult>> outputMap = new HashMap<>();
+    HashMap<Integer, PriorityQueue<SmartPattern.ParseResult>> parseResultByFilterMap = new HashMap<>();  //Priority list
+
     HashSet<String> catList = new HashSet<>(); //Store the filter's category
+    private String logFileType;
+
+    public void setLogFileType(String logFileType) {
+        this.logFileType = logFileType;
+    }
 
     class FilterPattern {
         SmartPattern smartPattern;
@@ -29,19 +38,39 @@ public class SmartPatternGroup {
             return smartPattern.cat;
         }
     }
-    Vector<FilterPattern> filterVector = new Vector<>();
+
+    HashMap<SmartPattern.FILETYPE, Vector<FilterPattern>> filterMap = new HashMap<>();
+    {
+        filterMap.put(SmartPattern.FILETYPE.CRASH, new Vector<>());
+        filterMap.put(SmartPattern.FILETYPE.EVENT, new Vector<>());
+        filterMap.put(SmartPattern.FILETYPE.KERNEL, new Vector<>());
+        filterMap.put(SmartPattern.FILETYPE.RADIO, new Vector<>());
+        filterMap.put(SmartPattern.FILETYPE.MAIN, new Vector<>());
+        filterMap.put(SmartPattern.FILETYPE.ALL, new Vector<>());
+        filterMap.put(SmartPattern.FILETYPE.SYSTEM, new Vector<>());
+    }
 
     public SmartPatternGroup() {
 
     }
 
+
+
+
+
     public void AddPattern(int fileID, String filter) {
         FilterPattern fltPattern = new FilterPattern(filter,fileID);
-        filterVector.add(fltPattern);
+        Vector<FilterPattern> fp = filterMap.get(fltPattern.smartPattern.filetype);
+        fp.add(fltPattern);
+        //Add one filterpattern includes all filter, it help us to smart parse one merge file
+        Vector<FilterPattern> fpAll = filterMap.get(SmartPattern.FILETYPE.ALL);
+        fpAll.add(fltPattern);
         catList.add(fltPattern.getFilterCat());
     }
 
-    public void ParseLine(String line) {
+    public void ParseLine(String line) throws Exception {
+        Vector<FilterPattern> filterVector = filterMap.get(SmartPattern.getFiletype(logFileType));
+        //If logFileTupe is a, all filter need run.
         for (FilterPattern filterPattern: filterVector) {
             SmartPattern.ParseResult parseResult = filterPattern.smartPattern.ParseLine(line);
             if (parseResult != null) {
@@ -52,12 +81,13 @@ public class SmartPatternGroup {
     }
 
     private void StoreParseOutput(int fileID, SmartPattern.ParseResult parseResult) {
-        Vector<SmartPattern.ParseResult> parseResultVector = outputMap.get(fileID);
-        if (parseResultVector == null) {
-            parseResultVector = new Vector<>();
-            outputMap.put(fileID, parseResultVector);
+        PriorityQueue<SmartPattern.ParseResult> parseResultsQueue = parseResultByFilterMap.get(fileID);
+        if (parseResultsQueue == null) {
+            parseResultsQueue = new PriorityQueue<>();
+            parseResultByFilterMap.put(fileID, parseResultsQueue);
         }
-        parseResultVector.add(parseResult);
+
+        parseResultsQueue.add(parseResult);
     }
 
 
@@ -111,13 +141,19 @@ public class SmartPatternGroup {
 
 
 
-        Vector<SmartPattern.ParseResult> parseResultVector = outputMap.get(fileID);
-        if (parseResultVector == null) {
+        PriorityQueue<SmartPattern.ParseResult> parseResultsQueue = parseResultByFilterMap.get(fileID);
+        if (parseResultsQueue == null) {
             return parseCombineOutput;
         }
-        for (SmartPattern.ParseResult parseOutput:parseResultVector) {
-            parseCombineOutput += "<p id=\""+ fileID+"\" cat=\""+parseOutput.cat +"\" tag = \"Converted\">" + parseOutput.convertedLog+"</p>\n";
-            parseCombineOutput += "<p id=\""+ fileID+"\" cat=\""+parseOutput.cat + "\" tag = \"Orignal\">" +"<font color= \"Gray\">" +parseOutput.orignalLog+"</font></p>\n";
+
+         while(!parseResultsQueue.isEmpty()) {
+             SmartPattern.ParseResult parseResult = parseResultsQueue.poll();
+            if (parseResult.convertedLog != null && parseResult.convertedLog.length() != 0) {
+                parseCombineOutput += "<p lid=\"" + fileID + "\" cat=\"" + parseResult.cat + "\" tag = \"Converted\">" + parseResult.convertedLog + "</p>\n";
+            }
+            if (parseResult.orignalLog != null && parseResult.orignalLog.length() != 0) {
+                parseCombineOutput += "<p lid=\"" + fileID + "\" cat=\"" + parseResult.cat + "\" tag = \"Orignal\">" + "<font color= \"Gray\">" + parseResult.orignalLog + "</font></p>\n";
+            }
         }
         parseCombineOutput += "</body>\n" +
                 "</html>\n";
